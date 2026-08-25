@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+*/venv/
+*/.venv/
+
+# Runtime / databases
+data/
+*/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Local configuration
+config.yaml
+agent/config.yaml
+
+# Runtime state / logs
+*.log
+*.sock
+events.jsonl
+agent/events.jsonl
+state/
+agent/state/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*~

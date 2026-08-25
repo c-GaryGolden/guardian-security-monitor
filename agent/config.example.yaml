@@ -1,0 +1,36 @@
+guardian_url: "http://GUARDIAN_HOST:8000/event"
+guardian_api_url: "http://GUARDIAN_HOST:8000"
+
+ssh_log_file: "/var/log/auth.log"
+ssh_threshold: 5
+
+apache_access_log: "/var/log/apache2/access.log"
+apache_error_log: "/var/log/apache2/error.log"
+
+samba:
+  interval: 10
+  socket_path: "/home/USER/agent/privileged/guardian.sock"
+
+file_monitor_paths:
+  - "/etc"
+  - "/srv/samba/shared"
+
+service_monitor:
+  interval: 30
+  services:
+    - ssh
+    - apache2
+    - smbd
+    - nmbd
+
+debsecan:
+  interval: 3600
+  state_file: "/home/USER/agent/state/debsecan.json"
+
+lynis:
+  interval: 7200
+  state_file: "/home/USER/agent/state/lynis.json"
+  socket_path: "/home/USER/agent/privileged/guardian.sock"
+
+command_poller:
+  interval: 10

@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GUARDIAN // Security Control Center</title>
+
+    <style>
+        :root {
+            --bg: #050807;
+            --panel: #0b100e;
+            --panel-2: #0f1612;
+            --border: #1d2a22;
+            --text: #d8e8dd;
+            --muted: #6f8277;
+            --green: #58ff9a;
+            --green-dark: #123c28;
+            --yellow: #ffd166;
+            --red: #ff5c70;
+            --cyan: #53d8ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(40, 100, 70, 0.12),
+                    transparent 30%
+                ),
+                var(--bg);
+            color: var(--text);
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 16px 22px;
+
+            border-bottom: 1px solid var(--border);
+            background: rgba(5, 8, 7, 0.96);
+        }
+
+        .title {
+            color: var(--green);
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .top-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 10px;
+        }
+
+        .online {
+            color: var(--green);
+        }
+
+        .warning {
+            color: var(--yellow);
+        }
+
+        .danger {
+            color: var(--red);
+        }
+
+        .cyan {
+            color: var(--cyan);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--border);
+            background: rgba(8, 13, 10, 0.75);
+            padding: 18px 12px;
+        }
+
+        .nav-title {
+            margin: 8px 10px 11px;
+            color: var(--muted);
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        .nav button {
+            width: 100%;
+            margin-bottom: 5px;
+            padding: 10px 11px;
+
+            border: 1px solid transparent;
+            border-radius: 4px;
+
+            background: transparent;
+            color: var(--muted);
+
+            cursor: pointer;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .nav button:hover,
+        .nav button.active {
+            color: var(--green);
+            background: var(--green-dark);
+            border-color: #1e5034;
+        }
+
+        .main {
+            min-width: 0;
+            padding: 22px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            margin-bottom: 17px;
+            color: var(--green);
+            font-size: 14px;
+            letter-spacing: 1.2px;
+        }
+
+        /* =========================
+           CARDS
+           ========================= */
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(170px, 1fr));
+            gap: 11px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            min-height: 88px;
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 5px;
+
+            background: var(--panel);
+        }
+
+        .card-label {
+            color: var(--muted);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-value {
+            margin-top: 10px;
+            color: var(--text);
+            font-size: 22px;
+        }
+
+        .card-small {
+            font-size: 11px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        /* =========================
+           PANELS
+           ========================= */
+
+        .panel {
+            margin-bottom: 18px;
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 5px;
+
+            background: var(--panel);
+        }
+
+        .panel-head {
+            padding: 12px 14px;
+
+            border-bottom: 1px solid var(--border);
+
+            color: var(--muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           TABLE
+           ========================= */
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 9px 11px;
+            border-bottom: 1px solid #142019;
+
+            text-align: left;
+            vertical-align: top;
+
+            font-size: 10px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        td {
+            color: var(--text);
+        }
+
+        tr:hover td {
+            background: var(--panel-2);
+        }
+
+        .json {
+            max-width: 520px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #9cb5a5;
+        }
+
+        /* =========================
+           BADGES
+           ========================= */
+
+        .badge {
+            display: inline-block;
+
+            padding: 3px 7px;
+
+            border: 1px solid var(--border);
+            border-radius: 3px;
+
+            font-size: 9px;
+        }
+
+        .badge-info {
+            color: var(--cyan);
+        }
+
+        .badge-medium {
+            color: var(--yellow);
+        }
+
+        .badge-high,
+        .badge-critical {
+            color: var(--red);
+        }
+
+        .badge-executed {
+            color: var(--green);
+        }
+
+        .badge-failed,
+        .badge-rejected {
+            color: var(--red);
+        }
+
+        .badge-seen {
+            color: var(--cyan);
+        }
+
+        /* =========================
+           ACTIVITY
+           ========================= */
+
+        .activity-table {
+            width: 100%;
+        }
+
+        .activity-table td {
+            padding: 9px 11px;
+        }
+
+        .activity-time {
+            width: 130px;
+            color: var(--muted);
+        }
+
+        .activity-type {
+            width: 190px;
+            color: var(--cyan);
+        }
+
+        /* =========================
+           SYSTEM
+           ========================= */
+
+        .system-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 11px;
+        }
+
+        .system-box {
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 5px;
+
+            background: var(--panel);
+        }
+
+        .system-name {
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .system-value {
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        .service-list {
+            display: grid;
+            gap: 7px;
+        }
+
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+
+            padding-bottom: 5px;
+            border-bottom: 1px solid #142019;
+        }
+
+        .service-row:last-child {
+            border-bottom: 0;
+        }
+
+        .footer {
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav {
+                display: grid;
+                grid-template-columns:
+                    repeat(5, 1fr);
+                gap: 5px;
+            }
+
+            .nav button {
+                margin: 0;
+                text-align: center;
+            }
+
+            .main {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <div>
+        <div class="title">
+            GUARDIAN // SECURITY CONTROL CENTER
+        </div>
+
+        <div class="subtitle">
+            INTERNAL LAN MONITORING // READ ONLY
+        </div>
+    </div>
+
+    <div class="top-status">
+        <span
+            id="top-api-status"
+            class="online"
+        >
+            ● ONLINE
+        </span>
+
+        <span
+            id="last-refresh"
+            class="muted"
+        >
+            refresh: -
+        </span>
+    </div>
+
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="nav-title">
+            NAVIGATION
+        </div>
+
+        <div class="nav">
+
+            <button
+                class="active"
+                onclick="showSection('dashboard', this)"
+            >
+                Dashboard
+            </button>
+
+            <button
+                onclick="showSection('events', this)"
+            >
+                Events
+            </button>
+
+            <button
+                onclick="showSection('incidents', this)"
+            >
+                Incidents
+            </button>
+
+            <button
+                onclick="showSection('commands', this)"
+            >
+                Commands
+            </button>
+
+            <button
+                onclick="showSection('system', this)"
+            >
+                System
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <!-- =========================
+             DASHBOARD
+             ========================= -->
+
+        <section
+            id="dashboard"
+            class="section active"
+        >
+
+            <div class="section-title">
+                // DASHBOARD
+            </div>
+
+            <!-- COMPONENT STATUS -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="card-label">
+                        API
+                    </div>
+
+                    <div
+                        id="status-api"
+                        class="card-value online"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        DATABASE
+                    </div>
+
+                    <div
+                        id="status-database"
+                        class="card-value online"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        AGENT
+                    </div>
+
+                    <div
+                        id="status-agent"
+                        class="card-value"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        PRIVILEGED
+                    </div>
+
+                    <div
+                        id="status-privileged"
+                        class="card-value"
+                    >
+                        -
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COUNTERS -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="card-label">
+                        EVENTS
+                    </div>
+
+                    <div
+                        id="event-count"
+                        class="card-value"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        INCIDENTS
+                    </div>
+
+                    <div
+                        id="incident-count"
+                        class="card-value"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        COMMANDS
+                    </div>
+
+                    <div
+                        id="command-count"
+                        class="card-value cyan"
+                    >
+                        -
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- LAST ACTIVITY -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="card-label">
+                        LAST AGENT EVENT
+                    </div>
+
+                    <div
+                        id="last-agent-event"
+                        class="card-value card-small"
+                    >
+                        -
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">
+                        LAST PRIVILEGED COMMAND
+                    </div>
+
+                    <div
+                        id="last-privileged-command"
+                        class="card-value card-small"
+                    >
+                        -
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RECENT ACTIVITY -->
+
+            <div class="panel">
+
+                <div class="panel-head">
+                    Recent Activity
+                </div>
+
+                <div id="recent-activity">
+                    Loading...
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =========================
+             EVENTS
+             ========================= -->
+
+        <section
+            id="events"
+            class="section"
+        >
+
+            <div class="section-title">
+                // EVENT HISTORY
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+                    Latest Events
+                </div>
+
+                <div
+                    id="events-table"
+                    class="table-wrap"
+                >
+                    Loading...
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =========================
+             INCIDENTS
+             ========================= -->
+
+        <section
+            id="incidents"
+            class="section"
+        >
+
+            <div class="section-title">
+                // INCIDENT HISTORY
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+                    Latest Incidents
+                </div>
+
+                <div
+                    id="incidents-table"
+                    class="table-wrap"
+                >
+                    Loading...
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =========================
+             COMMANDS
+             ========================= -->
+
+        <section
+            id="commands"
+            class="section"
+        >
+
+            <div class="section-title">
+                // COMMAND HISTORY
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-head">
+                    Latest Commands
+                </div>
+
+                <div
+                    id="commands-table"
+                    class="table-wrap"
+                >
+                    Loading...
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =========================
+             SYSTEM
+             ========================= -->
+
+        <section
+            id="system"
+            class="section"
+        >
+
+            <div class="section-title">
+                // SYSTEM
+            </div>
+
+            <div class="system-grid">
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        HOST
+                    </div>
+
+                    <div
+                        id="system-host"
+                        class="system-value"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        DATABASE
+                    </div>
+
+                    <div
+                        id="system-db"
+                        class="system-value"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        EVENTS
+                    </div>
+
+                    <div
+                        id="system-events"
+                        class="system-value"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        INCIDENTS
+                    </div>
+
+                    <div
+                        id="system-incidents"
+                        class="system-value"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        COMMANDS
+                    </div>
+
+                    <div
+                        id="system-commands"
+                        class="system-value"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        PANEL MODE
+                    </div>
+
+                    <div class="system-value cyan">
+                        READ ONLY
+                    </div>
+
+                </div>
+
+                <div class="system-box">
+
+                    <div class="system-name">
+                        GUARDIAN COMPONENTS
+                    </div>
+
+                    <div class="service-list">
+
+                        <div class="service-row">
+                            <span>API</span>
+                            <span
+                                id="system-api"
+                                class="online"
+                            >
+                                -
+                            </span>
+                        </div>
+
+                        <div class="service-row">
+                            <span>AGENT</span>
+                            <span
+                                id="system-agent"
+                                class="cyan"
+                            >
+                                -
+                            </span>
+                        </div>
+
+                        <div class="service-row">
+                            <span>PRIVILEGED</span>
+                            <span
+                                id="system-privileged"
+                                class="cyan"
+                            >
+                                -
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="footer">
+            GUARDIAN // INTERNAL NETWORK // READ ONLY
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    function showSection(
+        name,
+        button
+    ) {
+        document
+            .querySelectorAll(".section")
+            .forEach(
+                section => {
+                    section.classList.remove(
+                        "active"
+                    );
+                }
+            );
+
+        document
+            .querySelectorAll(".nav button")
+            .forEach(
+                btn => {
+                    btn.classList.remove(
+                        "active"
+                    );
+                }
+            );
+
+        document
+            .getElementById(name)
+            .classList.add("active");
+
+        button.classList.add("active");
+    }
+
+    function escapeHtml(
+        value
+    ) {
+        return String(
+            value ?? ""
+        )
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function severityBadge(
+        severity
+    ) {
+        const value = String(
+            severity || "unknown"
+        ).toLowerCase();
+
+        let cls = "badge-info";
+
+        if (value === "medium") {
+            cls = "badge-medium";
+        }
+
+        if (
+            value === "high" ||
+            value === "critical"
+        ) {
+            cls = "badge-high";
+        }
+
+        return `
+            <span class="badge ${cls}">
+                ${escapeHtml(value)}
+            </span>
+        `;
+    }
+
+    function statusBadge(
+        status
+    ) {
+        const value = String(
+            status || "unknown"
+        ).toLowerCase();
+
+        let cls = "badge-seen";
+
+        if (value === "executed") {
+            cls = "badge-executed";
+        }
+
+        if (
+            value === "failed" ||
+            value === "rejected"
+        ) {
+            cls = "badge-failed";
+        }
+
+        return `
+            <span class="badge ${cls}">
+                ${escapeHtml(value)}
+            </span>
+        `;
+    }
+
+    function formatTime(
+        value
+    ) {
+        if (!value) {
+            return "-";
+        }
+
+        return String(value)
+            .replace("T", " ")
+            .replace(
+                /\.\d+$/,
+                ""
+            );
+    }
+
+    function renderRecentActivity(
+        events,
+        commands,
+        incidents
+    ) {
+        const activity = [];
+
+        for (const command of commands) {
+            activity.push({
+                time: command.executed_at
+                    || command.created_at,
+                type:
+                    `COMMAND // ${command.action}`,
+                status: command.status,
+            });
+        }
+
+        for (const incident of incidents) {
+            activity.push({
+                time:
+                    incident.reacted_at
+                    || incident.created_at,
+                type:
+                    `INCIDENT // ${incident.rule}`,
+                status:
+                    incident.reaction_status
+                    || incident.status,
+            });
+        }
+
+        for (const event of events) {
+            activity.push({
+                time: event.timestamp,
+                type:
+                    `EVENT // ${event.type}`,
+                status: event.severity,
+            });
+        }
+
+        activity.sort(
+            (a, b) =>
+                new Date(b.time)
+                - new Date(a.time)
+        );
+
+        const recent =
+            activity.slice(0, 10);
+
+        if (!recent.length) {
+            return `
+                <div style="padding:14px">
+                    No recent activity.
+                </div>
+            `;
+        }
+
+        return `
+            <table class="activity-table">
+                <tbody>
+                    ${recent.map(item => `
+                        <tr>
+                            <td class="activity-time">
+                                ${escapeHtml(
+                                    formatTime(
+                                        item.time
+                                    )
+                                )}
+                            </td>
+
+                            <td class="activity-type">
+                                ${escapeHtml(
+                                    item.type
+                                )}
+                            </td>
+
+                            <td>
+                                ${statusBadge(
+                                    item.status
+                                )}
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function renderEvents(
+        events
+    ) {
+        if (!events.length) {
+            return `
+                <div style="padding:14px">
+                    No events.
+                </div>
+            `;
+        }
+
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Host</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Source</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${events.map(
+                        event => `
+                        <tr>
+                            <td>
+                                ${escapeHtml(
+                                    event.id
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    formatTime(
+                                        event.timestamp
+                                    )
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    event.host
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    event.type
+                                )}
+                            </td>
+
+                            <td>
+                                ${severityBadge(
+                                    event.severity
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    event.source
+                                )}
+                            </td>
+
+                            <td class="json">
+                                ${escapeHtml(
+                                    JSON.stringify(
+                                        event.data
+                                    )
+                                )}
+                            </td>
+                        </tr>
+                    `
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function renderIncidents(
+        incidents
+    ) {
+        if (!incidents.length) {
+            return `
+                <div style="padding:14px">
+                    No incidents.
+                </div>
+            `;
+        }
+
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Created</th>
+                        <th>Event</th>
+                        <th>Rule</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                        <th>Reaction</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${incidents.map(
+                        item => `
+                        <tr>
+                            <td>${escapeHtml(
+                                item.id
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                formatTime(
+                                    item.created_at
+                                )
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                item.event_id
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                item.rule
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                item.action
+                            )}</td>
+
+                            <td>${statusBadge(
+                                item.status
+                            )}</td>
+
+                            <td>${statusBadge(
+                                item.reaction_status
+                            )}</td>
+
+                            <td class="json">
+                                ${escapeHtml(
+                                    item.reason
+                                )}
+                            </td>
+                        </tr>
+                    `
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function renderCommands(
+        commands
+    ) {
+        if (!commands.length) {
+            return `
+                <div style="padding:14px">
+                    No commands.
+                </div>
+            `;
+        }
+
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Created</th>
+                        <th>Target</th>
+                        <th>Action</th>
+                        <th>Parameters</th>
+                        <th>Status</th>
+                        <th>Result</th>
+                        <th>Executed</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${commands.map(
+                        command => `
+                        <tr>
+                            <td>${escapeHtml(
+                                command.id
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                formatTime(
+                                    command.created_at
+                                )
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                command.target_host
+                            )}</td>
+
+                            <td>${escapeHtml(
+                                command.action
+                            )}</td>
+
+                            <td class="json">
+                                ${escapeHtml(
+                                    JSON.stringify(
+                                        command.parameters
+                                    )
+                                )}
+                            </td>
+
+                            <td>${statusBadge(
+                                command.status
+                            )}</td>
+
+                            <td class="json">
+                                ${escapeHtml(
+                                    JSON.stringify(
+                                        command.result
+                                    )
+                                )}
+                            </td>
+
+                            <td>${escapeHtml(
+                                formatTime(
+                                    command.executed_at
+                                )
+                            )}</td>
+                        </tr>
+                    `
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    async function getJson(
+        url
+    ) {
+        const response =
+            await fetch(
+                url,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                `${url}: ${response.status}`
+            );
+        }
+
+        return response.json();
+    }
+
+    async function refreshDashboard() {
+
+        try {
+
+            const [
+                health,
+                status,
+                events,
+                incidents,
+                commands
+            ] = await Promise.all([
+                getJson("/health"),
+                getJson("/status"),
+                getJson("/events?limit=10"),
+                getJson("/incidents?limit=10"),
+                getJson("/commands?limit=10")
+            ]);
+
+            /*
+             * TOP STATUS
+             */
+
+            document.getElementById(
+                "top-api-status"
+            ).textContent =
+                "● " +
+                String(
+                    status.api.status
+                    || "offline"
+                ).toUpperCase();
+
+            /*
+             * DASHBOARD STATUS
+             */
+
+            document.getElementById(
+                "status-api"
+            ).textContent =
+                String(
+                    status.api.status
+                    || "-"
+                ).toUpperCase();
+
+            document.getElementById(
+                "status-database"
+            ).textContent =
+                String(
+                    status.database.status
+                    || "-"
+                ).toUpperCase();
+
+            document.getElementById(
+                "status-agent"
+            ).textContent =
+                String(
+                    status.agent.status
+                    || "-"
+                ).toUpperCase();
+
+            document.getElementById(
+                "status-privileged"
+            ).textContent =
+                String(
+                    status.privileged.status
+                    || "-"
+                ).toUpperCase();
+
+            /*
+             * COUNTERS
+             */
+
+            document.getElementById(
+                "event-count"
+            ).textContent =
+                health.events;
+
+            document.getElementById(
+                "incident-count"
+            ).textContent =
+                health.incidents;
+
+            document.getElementById(
+                "command-count"
+            ).textContent =
+                health.commands;
+
+            /*
+             * LAST ACTIVITY
+             */
+
+            document.getElementById(
+                "last-agent-event"
+            ).textContent =
+                formatTime(
+                    status.agent.last_event
+                );
+
+            document.getElementById(
+                "last-privileged-command"
+            ).textContent =
+                formatTime(
+                    status.privileged.last_command
+                );
+
+            /*
+             * RECENT ACTIVITY
+             */
+
+            document.getElementById(
+                "recent-activity"
+            ).innerHTML =
+                renderRecentActivity(
+                    events.events || [],
+                    commands.commands || [],
+                    incidents.incidents || []
+                );
+
+            /*
+             * EVENTS
+             */
+
+            document.getElementById(
+                "events-table"
+            ).innerHTML =
+                renderEvents(
+                    events.events || []
+                );
+
+            /*
+             * INCIDENTS
+             */
+
+            document.getElementById(
+                "incidents-table"
+            ).innerHTML =
+                renderIncidents(
+                    incidents.incidents || []
+                );
+
+            /*
+             * COMMANDS
+             */
+
+            document.getElementById(
+                "commands-table"
+            ).innerHTML =
+                renderCommands(
+                    commands.commands || []
+                );
+
+            /*
+             * SYSTEM
+             */
+
+            document.getElementById(
+                "system-host"
+            ).textContent =
+                status.agent.host
+                || "-";
+
+            document.getElementById(
+                "system-db"
+            ).textContent =
+                "SQLite";
+
+            document.getElementById(
+                "system-events"
+            ).textContent =
+                health.events;
+
+            document.getElementById(
+                "system-incidents"
+            ).textContent =
+                health.incidents;
+
+            document.getElementById(
+                "system-commands"
+            ).textContent =
+                health.commands;
+
+            document.getElementById(
+                "system-api"
+            ).textContent =
+                String(
+                    status.api.status
+                    || "-"
+                ).toUpperCase();
+
+            document.getElementById(
+                "system-agent"
+            ).textContent =
+                String(
+                    status.agent.status
+                    || "-"
+                ).toUpperCase();
+
+            document.getElementById(
+                "system-privileged"
+            ).textContent =
+                String(
+                    status.privileged.status
+                    || "-"
+                ).toUpperCase();
+
+            /*
+             * REFRESH TIME
+             */
+
+            document.getElementById(
+                "last-refresh"
+            ).textContent =
+                "refresh: " +
+                new Date()
+                    .toLocaleTimeString();
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById(
+                "top-api-status"
+            ).textContent =
+                "● OFFLINE";
+        }
+    }
+
+    refreshDashboard();
+
+    setInterval(
+        refreshDashboard,
+        5000
+    );
+
+</script>
+
+</body>
+</html>
