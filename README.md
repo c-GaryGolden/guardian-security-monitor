@@ -1,77 +1,54 @@
 # Guardian
 
-> Linux security monitoring, incident detection and controlled response platform.
+> Linux security monitoring and controlled incident response platform.
 
-Guardian is a LAN-based security monitoring and response platform for Linux hosts.
+Guardian monitors Linux hosts, detects security events, creates incidents and executes controlled automated responses.
 
-The project combines:
+## Features
 
-- event collection
-- security rule evaluation
-- incident detection
-- controlled automated reactions
-- command queuing
-- privileged system operations
-- heartbeat monitoring
-- SQLite-based audit history
-- a read-only SOC-style web dashboard
+- SSH, Apache, Samba and filesystem monitoring
+- Service monitoring
+- Lynis and Debsecan integration
+- Rule-based incident detection
+- Command queue and audit history
+- Privileged operations via UNIX socket
+- `restart_service`
+- `block_ip` / `unblock_ip` using nftables
+- Agent heartbeat monitoring
+- Read-only SOC-style web dashboard
 
 ## Architecture
 
-Guardian consists of two main components:
-
 ```text
-Orange Pi
-192.168.10.200
-│
-├── Guardian API
-├── SQLite
-├── Command Queue
-├── Incident Engine
-└── Read-only Web Dashboard
-        │
-        │ HTTP
-        ▼
-Ubuntu
-192.168.10.199
-│
-├── Guardian Agent
-├── Collectors
-├── Scanners
-├── CommandPoller
-├── Heartbeat
-└── Guardian Privileged Server
-        │
-        ├── systemctl
-        ├── nftables
-        ├── Lynis
-        └── smbstatus
-
-Core features
-Monitoring
-SSH logs
-Apache logs
-filesystem changes
-service state
-Samba sessions
-Debsecan
-Lynis
-Detection
-
-Current rules include:
-
-ssh_bruteforce_high
-lynis_regression
-Controlled reactions
-notify
-log
-alert
-restart_service
-block_ip
-unblock_ip
+                 ┌──────────────────────┐
+                 │   Web Browser / LAN  │
+                 └──────────┬───────────┘
+                            │
+                            ▼
+                 ┌──────────────────────┐
+                 │ Orange Pi            │
+                 │ Guardian API         │
+                 │ FastAPI + SQLite     │
+                 │ Web Dashboard        │
+                 └──────────┬───────────┘
+                            │ HTTP
+                            ▼
+                 ┌──────────────────────┐
+                 │ Ubuntu               │
+                 │ Guardian Agent       │
+                 │ Collectors / Scanners│
+                 │ CommandPoller        │
+                 └──────────┬───────────┘
+                            │ UNIX socket
+                            ▼
+                 ┌──────────────────────┐
+                 │ Guardian Privileged  │
+                 │ root-only operations │
+                 │ nftables / systemctl │
+                 └──────────────────────┘
 Security model
 
-Privileged actions are isolated from the regular Agent process:
+Privileged operations are isolated from the main Agent process.
 
 Agent
   ↓
@@ -79,53 +56,58 @@ PrivilegedClient
   ↓
 UNIX socket
   ↓
-Guardian Privileged Server
+Guardian Privileged
   ↓
-root operation
+controlled root operation
 
 The system uses:
 
-allowlists
+action allowlists
 protected IPs
-IP validation
+input validation
 cooldowns
 rate limits
-command audit history
+persistent command results
+Dashboard
 
-Protected addresses:
+Read-only web dashboard:
 
-192.168.10.199
-192.168.10.254
-Web dashboard
+http://GUARDIAN_HOST:8000/
 
-The project includes a read-only SOC-style dashboard:
-
-http://192.168.10.200:8000/
-
-Dashboard sections:
+Includes:
 
 Dashboard
 Events
 Incidents
 Commands
 System
-API
+Example response flow
 
-Important endpoints:
+Event
+  ↓
+Rule
+  ↓
+Incident
+  ↓
+Reaction
+  ↓
+Command Queue
+  ↓
+Privileged execution
+  ↓
+Audit result
 
-GET  /
-GET  /health
-GET  /status
-GET  /events
-GET  /incidents
-GET  /commands
+Example:
 
-POST /event
-POST /commands/poll
-POST /commands/{id}/result
-POST /heartbeat
-Project structure
-guardian/
+block_ip
+   ↓
+nftables DROP
+   ↓
+unblock_ip
+   ↓
+rule removed
+
+guardian-security-monitor/
 ├── agent/
 ├── web/
 ├── api.py
@@ -135,31 +117,12 @@ guardian/
 ├── actions.py
 ├── config.example.yaml
 ├── README.md
-└── .gitignore
-Current status
+└── LICENSE
 
-The core monitoring, command queue, privileged execution, automated reactions, heartbeat and read-only dashboard are operational.
+Status
 
-Verified functionality includes:
+Core monitoring, incident detection, command queue, privileged execution, heartbeat and web dashboard are operational.
 
-restart_service
-block_ip
-unblock_ip
-protected IP validation
-command queue
-heartbeat
-incident tracking
-dashboard access over LAN
-Roadmap
-system metrics
-advanced filtering
-reaction history
-automated tests
-stronger API authentication
-structured logging
-backup / recovery tooling
-IPv6 support
-timed IP bans
-live WebSocket events
-multi-host support
+<img width="1894" height="957" alt="image" src="https://github.com/user-attachments/assets/ba29b2b6-fb1f-41a1-9182-35a1386afd39" />
+
 
