@@ -4,6 +4,8 @@
 
 Guardian monitors Linux hosts, detects security events, creates incidents and executes controlled automated responses.
 
+![Guardian Dashboard](dashboard.png)
+
 ## Features
 
 - SSH, Apache, Samba and filesystem monitoring
@@ -46,10 +48,13 @@ Guardian monitors Linux hosts, detects security events, creates incidents and ex
                  │ root-only operations │
                  │ nftables / systemctl │
                  └──────────────────────┘
-Security model
+```
+
+## Security model
 
 Privileged operations are isolated from the main Agent process.
 
+```text
 Agent
   ↓
 PrivilegedClient
@@ -59,30 +64,34 @@ UNIX socket
 Guardian Privileged
   ↓
 controlled root operation
+```
 
 The system uses:
 
-action allowlists
-protected IPs
-input validation
-cooldowns
-rate limits
-persistent command results
-Dashboard
+- action allowlists
+- protected IPs
+- input validation
+- cooldowns
+- rate limits
+- persistent command results
+
+## Dashboard
 
 Read-only web dashboard:
 
-http://GUARDIAN_HOST:8000/
+`http://GUARDIAN_HOST:8000/`
 
 Includes:
 
-Dashboard
-Events
-Incidents
-Commands
-System
-Example response flow
+- Dashboard
+- Events
+- Incidents
+- Commands
+- System
 
+## Example response flow
+
+```text
 Event
   ↓
 Rule
@@ -96,9 +105,11 @@ Command Queue
 Privileged execution
   ↓
 Audit result
+```
 
 Example:
 
+```text
 block_ip
    ↓
 nftables DROP
@@ -106,7 +117,11 @@ nftables DROP
 unblock_ip
    ↓
 rule removed
+```
 
+## Project structure
+
+```text
 guardian-security-monitor/
 ├── agent/
 ├── web/
@@ -118,10 +133,16 @@ guardian-security-monitor/
 ├── config.example.yaml
 ├── README.md
 └── LICENSE
+```
 
-Status
+## Status
 
 Core monitoring, incident detection, command queue, privileged execution, heartbeat and web dashboard are operational.
 
-![Guardian Dashboard](dashboard.png)
+## Documentation
 
+Full technical documentation is included in the project documentation.
+
+## License
+
+MIT
