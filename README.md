@@ -123,6 +123,6 @@ Status
 
 Core monitoring, incident detection, command queue, privileged execution, heartbeat and web dashboard are operational.
 
-<img width="1894" height="957" alt="image" src="https://github.com/user-attachments/assets/ba29b2b6-fb1f-41a1-9182-35a1386afd39" />
+
 
 
