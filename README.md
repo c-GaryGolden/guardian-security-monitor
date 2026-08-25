@@ -125,4 +125,3 @@ Core monitoring, incident detection, command queue, privileged execution, heartb
 
 ![Guardian Dashboard](dashboard.png)
 
-
