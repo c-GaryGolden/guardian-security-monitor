@@ -25,8 +25,8 @@ ALLOWED_RESTART_SERVICES = {
     "apache2",
 }
 PROTECTED_IPS = {
-    "192.168.10.199",
-    "192.168.10.254",
+    "",
+    "",
 }
 
 BLOCK_CHAIN = "guardian"
