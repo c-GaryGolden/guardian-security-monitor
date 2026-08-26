@@ -100,7 +100,7 @@ def status():
     )
 
     agent = HEARTBEATS.get(
-        "192.168.10.199"
+        ""
     )
 
     agent_online = False
