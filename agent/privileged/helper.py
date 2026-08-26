@@ -103,15 +103,7 @@ def parse_samba_status(output):
         if not line:
             continue
 
-        # Oczekiwany format:
-        #
-        # PID Username Group Machine (ipv4:IP:PORT) Protocol ...
-        #
-        # np.
-        # 1194 garygolden garygolden
-        # 192.168.10.254
-        # (ipv4:192.168.10.254:55692)
-        # SMB3_11 ...
+       
 
         if not re.match(r"^\d+\s+", line):
             continue
